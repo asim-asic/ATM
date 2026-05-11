@@ -147,8 +147,8 @@ module squat #(
 
   ATMCellType ATMcell;
 
-  /// State MAchine
-  always_ff @(posedge clock, poseedge reset) begin: FSM
+  /// State Machine
+  always_ff @(posedge clock, posedge reset) begin: FSM
 	bit breakVar;
 	if (reset) begin: reset_logic
 		Rxready <= '1;
@@ -178,50 +178,25 @@ module squat #(
 					RoundRobin[0]};
 			end: loop1
 		end: rx_valid_state
-
+		wait_rx_not_valid: begin: rx_not_valid_state
+			if(ATMcell.uni.HEC != hec(ATMcell.Mem[0:3])) begin
+				SquatState <= wait_rx_valid;
+				`ifdef SYNTHESIS // synthesis ignores this code
+					$write("Bad HEC: ATMcell.uni.HEC(0x%x) != ");
+					$display("ATMcell.Mem[0:3](0x%x)",
+						ATMcell.uni.HEC, hec(ATMcell.Mem[0:3]));
+				`endif
+			end
+			else begin
+				// Get the forward ports & new VPI
+				{forward, ATMcell.nni.VPI} <= lut.read(ATMcell.uni.VPI);
+				// Recompute the HEC
+				ATMcell.nni.HEC <= hec(ATMcell.Mem[0:3]);
+				SquatState <= wait_tx_ready;
+			end
+		end: rx_not_valid_state
 	end
-
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
+end  
   
   
   
