@@ -148,57 +148,82 @@ module squat #(
   ATMCellType ATMcell;
 
   /// State Machine
-  always_ff @(posedge clock, posedge reset) begin: FSM
-	bit breakVar;
-	if (reset) begin: reset_logic
-		Rxready <= '1;
-		Txvalid <= '0;
-		Txsel_out <= '0;
-		SquatState <= wait_rx_valid;
-		forward <= 0;
-		RoundRobin = 1;
-	end: reset_logic
-	else begin: FSM_sequencer
-		unique case(SquatState)
-			wait_rx_valid: begin: rx_valid_state
-				Rxready <= '1;
-				breakVar = 1;
-				for(int j=0; j<NumRx; j+=1) begin:loop1
-					for(int i=0; i<NumRx; i+=1) begin:loop2
-						if(Rxvalid[i] && RoundRobin[i] && breakVar)
-						begin: match
-							ATMcell <= RxATMcell[i];
-							Rxready[i] <= 0;
-							SquatState <= wait_rx_not_valid;
-							breakVar = 0;
-						end: match
-					end: loop2
-					if(breakVar)
-						RoundRobin={RoundRobin[i:$bits(RoundRobin)-1],
-					RoundRobin[0]};
-			end: loop1
-		end: rx_valid_state
-		wait_rx_not_valid: begin: rx_not_valid_state
-			if(ATMcell.uni.HEC != hec(ATMcell.Mem[0:3])) begin
-				SquatState <= wait_rx_valid;
-				`ifdef SYNTHESIS // synthesis ignores this code
-					$write("Bad HEC: ATMcell.uni.HEC(0x%x) != ");
-					$display("ATMcell.Mem[0:3](0x%x)",
-						ATMcell.uni.HEC, hec(ATMcell.Mem[0:3]));
-				`endif
-			end
-			else begin
-				// Get the forward ports & new VPI
-				{forward, ATMcell.nni.VPI} <= lut.read(ATMcell.uni.VPI);
-				// Recompute the HEC
-				ATMcell.nni.HEC <= hec(ATMcell.Mem[0:3]);
-				SquatState <= wait_tx_ready;
-			end
-		end: rx_not_valid_state
-	end
-end  
-  
-  
-  
+  always_ff @(posedge clock, posedge reset) begin : FSM
+    bit breakVar;
+    if (reset) begin : reset_logic
+      Rxready <= '1;
+      Txvalid <= '0;
+      Txsel_out <= '0;
+      SquatState <= wait_rx_valid;
+      forward <= 0;
+      RoundRobin = 1;
+    end : reset_logic
+    else begin : FSM_sequencer
+      unique case (SquatState)
+        wait_rx_valid: begin : rx_valid_state
+          Rxready <= '1;
+          breakVar = 1;
+          for (int j = 0; j < NumRx; j += 1) begin : loop1
+            for (int i = 0; i < NumRx; i += 1) begin : loop2
+              if (Rxvalid[i] && RoundRobin[i] && breakVar) begin : match
+                ATMcell <= RxATMcell[i];
+                Rxready[i] <= 0;
+                SquatState <= wait_rx_not_valid;
+                breakVar = 0;
+              end : match
+            end : loop2
+            if (breakVar) RoundRobin = {RoundRobin[i:$bits(RoundRobin)-1], RoundRobin[0]};
+          end : loop1
+        end : rx_valid_state
+        wait_rx_not_valid: begin : rx_not_valid_state
+          if (ATMcell.uni.HEC != hec(ATMcell.Mem[0:3])) begin
+            SquatState <= wait_rx_valid;
+`ifdef SYNTHESIS  // synthesis ignores this code
+            $write("Bad HEC: ATMcell.uni.HEC(0x%x) != ");
+            $display("ATMcell.Mem[0:3](0x%x)", ATMcell.uni.HEC, hec(ATMcell.Mem[0:3]));
+`endif
+          end else begin
+            // Get the forward ports & new VPI
+            {forward, ATMcell.nni.VPI} <= lut.read(ATMcell.uni.VPI);
+            // Recompute the HEC
+            ATMcell.nni.HEC <= hec(ATMcell.Mem[0:3]);
+            SquatState <= wait_tx_ready;
+          end
+        end : rx_not_valid_state
+        wait_tx_ready: begin : tx_valid_state
+          if (forward) begin
+            for (int i = 0; i < NumTx; i += 1) begin
+              if (forward[i] && Txready[i]) begin
+                TxATMcell[i] <= ATMcell;
+                Txvalid[i]   <= 1;
+                Txsel_out[i] <= 1;
+              end
+            end
+            SquatState <= wait_tx_not_ready;
+          end else begin
+            SquatState <= wait_rx_valid;
+          end
+        end : tx_valid_state
+        wait_tx_not_ready: begin : tx_not_valid_state
+          for (int i = 0; i < NumTx; i += 1) begin
+            if (forward[i] && !Txready[i] && Txsel_in[i]) begin
+              Txvalid[i]   <= 0;
+              Txsel_out[i] <= 0;
+              forward[i]   <= 0;
+            end
+          end
+          if (forward) SquatState <= wait_tx_ready;
+          else SquatState <= wait_rx_valid;
+        end : tx_not_valid_state
+        default: begin : unknown_state
+          SquatState <= wait_rx_valid;
+`ifdef SYNTHESIS  // synthesis ignores this code
+          $display("Unknown condition");
+          $finish();
+`endif
+        end : unknown_state
+      endcase
+    end : FSM_sequencer
+  end : FSM
 endmodule
 
