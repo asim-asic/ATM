@@ -7,14 +7,14 @@ module squat #(
     Utopia  /* .TopReceive */ Rx[0:NumRx-1],
 
     // NumTx x Level 1 Utopia ATM layer Tx Interfaces
-    Utopia  /* .TopTransmit */ Tx[0:Numtx-1],
+    Utopia  /* .TopTransmit */ Tx[0:NumTx-1],
 
     // Utopia Level 2 parallel managment interface
     // Inter-style Utopia parallel management interface
     CPU.Peripheral mif,
 
     // Miscellaneous control interfaces
-    input wire rst,
+    input wire reset,
     clk
 );
 
@@ -45,15 +45,15 @@ module squat #(
   end
 
   always_comb begin
-    mif.Rdy_Dtack <= 1'bz;
-    mif.DataOut   <= 8'hzz;
+    mif.Rdy_Dtack = 1'bz;
+    mif.DataOut   = 8'hzz;
     if (mif.BusMode == 1'b1) begin
       unique case ({
         mif.Sel, mif.Rd_DS, mif.Wr_RW
       })
         WriteCycle: mif.Rdy_Dtack <= 1'b0;
         ReadCycle: begin
-          mif.Rdy_Dtype <= 1'b0;
+          mif.Rdy_Dtack <= 1'b0;
           mif.DataOut   <= lut.read(mif.Addr);
         end
       endcase
@@ -91,7 +91,7 @@ module squat #(
     for (int unsigned i = 0; i < 256; i += 1) begin
       sndrm = i;
       repeat (8) begin
-        if (sbdrm[7] == 1'b1) sndrm = (sndrm << 1) ^ 8'h07;
+        if (sndrm[7] == 1'b1) sndrm = (sndrm << 1) ^ 8'h07;
         else sndrm = sndrm << 1;
       end
       syndrom[i] = sndrm;
@@ -129,7 +129,7 @@ module squat #(
 
 
   generate
-    for (TxIter = 0; TxIter < Numtx; TxIter += 1) begin : GenTx
+    for (TxIter=0; TxIter<NumTx; TxIter += 1) begin : GenTx
       assign Tx[TxIter].valid = Txvalid[TxIter];
       assign Txready[TxIter] = Tx[TxIter].ready;
       assign Txsel_in[TxIter] = Tx[TxIter].selected;
@@ -148,7 +148,7 @@ module squat #(
   ATMCellType ATMcell;
 
   /// State Machine
-  always_ff @(posedge clock, posedge reset) begin : FSM
+  always_ff @(posedge clk, posedge reset) begin : FSM
     bit breakVar;
     if (reset) begin : reset_logic
       Rxready <= '1;
@@ -178,7 +178,7 @@ module squat #(
         wait_rx_not_valid: begin : rx_not_valid_state
           if (ATMcell.uni.HEC != hec(ATMcell.Mem[0:3])) begin
             SquatState <= wait_rx_valid;
-`ifdef SYNTHESIS  // synthesis ignores this code
+`ifndef SYNTHESIS  // synthesis ignores this code
             $write("Bad HEC: ATMcell.uni.HEC(0x%x) != ");
             $display("ATMcell.Mem[0:3](0x%x)", ATMcell.uni.HEC, hec(ATMcell.Mem[0:3]));
 `endif
@@ -217,7 +217,7 @@ module squat #(
         end : tx_not_valid_state
         default: begin : unknown_state
           SquatState <= wait_rx_valid;
-`ifdef SYNTHESIS  // synthesis ignores this code
+`ifndef SYNTHESIS  // synthesis ignores this code
           $display("Unknown condition");
           $finish();
 `endif

@@ -80,7 +80,7 @@ module utopial_atm_tx (
 
         payload: begin : payload_state
           if (Tx.clav) begin
-            Tx.data <= Tx.ATMcell.nni.Payload[payloadIndex];
+            Tx.data <= Tx.ATMcell.nni.Payload[PayloadIndex];
             if (PayloadIndex == 47) UtopiaStatus <= ack;
             PayloadIndex++;
           end

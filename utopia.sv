@@ -1,3 +1,8 @@
+`ifndef INCL_UTOPIA
+`define INCL_UTOPIA
+
+`include "definitions.sv"
+
 interface utopia;
   parameter int Ifwidth = 8;
 
@@ -5,6 +10,7 @@ interface utopia;
   bit clk_out;
   logic [Ifwidth-1:0] data;
   bit soc;
+  bit en;
   bit clav;
   bit valid;
   bit ready;
@@ -17,7 +23,6 @@ interface utopia;
       input clk_in, data, soc, clav, ready, reset,
       output clk_out, en, ATMcell, valid
   );
-
 
   modport TopTransmit(
       input clk_in, clav, ATMcell, ready, reset,
@@ -38,3 +43,5 @@ interface utopia;
   UtopiaMethod Method;  // interface with testing methods
 `endif
 endinterface
+
+`endif  // INCL_UTOPIA

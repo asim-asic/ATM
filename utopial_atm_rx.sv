@@ -51,7 +51,7 @@ module utopial_atm_rx (
 
         vci: begin : vci_state
           if (Rx.clav) begin
-            Rx.ATMcell.uni.VPI[11:4] <= Rx.data;
+            Rx.ATMcell.uni.VCI[11:4] <= Rx.data;
             UtopiaStatus <= vci_clp_pt;
           end
         end : vci_state
