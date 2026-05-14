@@ -1,4 +1,7 @@
-`include "definitions.sv"
+//`include "definitions.sv"
+import definitions_sv_unit::*;
+import utopia_sv_unit::*;
+import methods_sv_unit::*;
 
 module squat #(
     parameter int NumRx = 4,
@@ -14,7 +17,7 @@ module squat #(
     CPU.Peripheral mif,
 
     // Miscellaneous control interfaces
-    input wire reset,
+    input wire rst,
     clk
 );
 
@@ -40,13 +43,14 @@ module squat #(
         mif.Sel, mif.Rd_DS, mif.Wr_RW
       })
         WriteCycle: lut.write(mif.Addr, mif.DataIn);
+	default:;      
       endcase
     end
   end
 
   always_comb begin
     mif.Rdy_Dtack = 1'bz;
-    mif.DataOut   = 8'hzz;
+    mif.DataOut   = 'bz;
     if (mif.BusMode == 1'b1) begin
       unique case ({
         mif.Sel, mif.Rd_DS, mif.Wr_RW
@@ -56,6 +60,7 @@ module squat #(
           mif.Rdy_Dtack <= 1'b0;
           mif.DataOut   <= lut.read(mif.Addr);
         end
+	default:;
       endcase
     end
   end
@@ -129,7 +134,7 @@ module squat #(
 
 
   generate
-    for (TxIter=0; TxIter<NumTx; TxIter += 1) begin : GenTx
+    for (TxIter = 0; TxIter < NumTx; TxIter += 1) begin : GenTx
       assign Tx[TxIter].valid = Txvalid[TxIter];
       assign Txready[TxIter] = Tx[TxIter].ready;
       assign Txsel_in[TxIter] = Tx[TxIter].selected;
@@ -172,15 +177,15 @@ module squat #(
                 breakVar = 0;
               end : match
             end : loop2
-            if (breakVar) RoundRobin = {RoundRobin[i:$bits(RoundRobin)-1], RoundRobin[0]};
+            if (breakVar) RoundRobin = {RoundRobin[1:$bits(RoundRobin)-1], RoundRobin[0]};
           end : loop1
         end : rx_valid_state
         wait_rx_not_valid: begin : rx_not_valid_state
           if (ATMcell.uni.HEC != hec(ATMcell.Mem[0:3])) begin
             SquatState <= wait_rx_valid;
 `ifndef SYNTHESIS  // synthesis ignores this code
-            $write("Bad HEC: ATMcell.uni.HEC(0x%x) != ");
-            $display("ATMcell.Mem[0:3](0x%x)", ATMcell.uni.HEC, hec(ATMcell.Mem[0:3]));
+            $display("Bad HEC: ATMcell.uni.HEC(0x%x) != ATMcell.Mem[0:3](0x%x)", ATMcell.uni.HEC,
+                     hec(ATMcell.Mem[0:3]));
 `endif
           end else begin
             // Get the forward ports & new VPI
