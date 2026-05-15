@@ -1,9 +1,6 @@
-`ifndef INCL_UTOPIA
-`define INCL_UTOPIA
+import definitions_sv_unit::*;
 
-`include "definitions.sv"
-
-interface utopia;
+interface Utopia;
   parameter int Ifwidth = 8;
 
   bit clk_in;
@@ -40,8 +37,7 @@ interface utopia;
   );
 
 `ifndef SYNTHESIS  // synthesis ignores this code
-  UtopiaMethod Method;  // interface with testing methods
+  UtopiaMethod Method();  // interface with testing methods
 `endif
 endinterface
 
-`endif  // INCL_UTOPIA
