@@ -1,7 +1,10 @@
-`ifndef INCL_METHODS
-`define INCL_METHODS
+//`ifndef INCL_METHODS
+//`define INCL_METHODS
 
-interface UtopiaMethod;
+import definitions_sv_unit::*;
+import utopia_sv_unit::*;
+
+interface UtopiaMethod();
   task automatic Initialise();
   endtask
 
@@ -88,4 +91,4 @@ interface CPUMethod;
   endtask
 endinterface
 
-`endif  // INCL_METHODS
+//`endif  // INCL_METHODS
