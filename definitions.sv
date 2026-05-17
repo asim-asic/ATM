@@ -1,8 +1,8 @@
-`ifndef INCL_DEFINITIONS
-`define INCL_DEFINITIONS
+`ifndef _INCL_DEFINITIONS
+`define _INCL_DEFINITIONS
 
-`define RxPorts 4
-`define TxPorts 4
+parameter int RxPorts = 4;
+parameter int TxPorts = 4;
 
 typedef struct packed {
   bit [3:0] GFC;
@@ -41,7 +41,7 @@ typedef union packed {
 
 
 typedef struct packed {
-  bit [`TxPorts-1:0] FWD;
+  bit [TxPorts-1:0] FWD;
   bit [11:0] VPI;
 } CellCfgType;
 
@@ -58,7 +58,7 @@ interface CPU;
   modport Peripheral(input BusMode, Addr, Sel, DataIn, Rd_DS, Wr_RW, output DataOut, Rdy_Dtack);
 
 `ifndef SYNTHESIS  // synthesis ignores this code
-  CPUMethod Method;  // interface with testing methods
+  CPUMethod Method();  // interface with testing methods
 `endif
 endinterface
 
@@ -80,4 +80,4 @@ interface LookupTable;
   endfunction
 endinterface
 
-`endif  // INCL_DEFINITIONS
+`endif // _INCL_DEFINITIONS
