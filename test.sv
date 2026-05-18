@@ -1,18 +1,25 @@
-`include "definitions.sv"
-`include "methods.sv"
+//`include "utopia.sv"
+//`include "definitions.sv"
+
+import definitions_sv_unit::*;
+import utopia_sv_unit::*;
+import methods_sv_unit::*;
+
+//`include "methods.sv"
 
 module test ();
-  parameter int NumRx = `RxPorts;
-  parameter int NumTx = `TxPorts;
+  parameter int NumRx = RxPorts;
+  parameter int NumTx = TxPorts;
 
   // NumRx x Level 1 Utopia Rx Interfaces
-  Utopia Rx[0:NumRx-1];
+  Utopia Rx[0:NumRx-1]();
 
   // NumTx x Level 1 Utopia Tx Interfaces
-  Utopia Tx[0:NumTx-1];
+  Utopia Tx[0:NumTx-1]();
 
   // Interstyle Utopia parallel management interface
-  CPU mif;
+  CPU mif();
+  //CPU cpu();
 
   // Miscellaneous control interfaces
   logic rst;
@@ -92,9 +99,10 @@ module test ();
 
   // Stimulus
   initial begin
-    int automatic seed = 1;
+    int seed; 
     CellCfgType   CellFwd;
-    $display("Configuration RxPorts=%0d TxPorts=%0d", `RxPorts, `TxPorts);
+    seed = 1;
+    $display("Configuration RxPorts=%0d TxPorts=%0d", RxPorts, TxPorts);
     mif.Method.Initialise_Host();
 
     // Configure through Host interface
@@ -128,6 +136,10 @@ module test ();
   end
 
   int TxPktCtr[0:NumTx-1];
+  initial begin
+	  for(int i=0; i<NumTx; i++)
+		  TxPktCtr[i] = 0;
+  end
   bit [0:NumRx-1] RxGenInProgress;
   genvar RxIter;
   genvar TxIter;
@@ -142,16 +154,17 @@ module test ();
         Rx[RxIter].soc = 0;
         Rx[RxIter].en = 1;
         Rx[RxIter].clav = 0;
-        Rx[RxIter].ready = 0;
+ //       Rx[RxIter].ready = 0;
 
         RxGenInProgress[RxIter] = 1;
         wait (Initialised === 1'b1);
-        seed = RxIter + 1;
+        $display("RX%0d Started", RxIter);
+	seed = RxIter + 1;
         Rx[RxIter].Method.Initialise();
         repeat (200) begin
           RandomPkt(Pkt, seed);
           TxPortTarget = find(Pkt.uni.VPI);
-
+	  $display("Target=%0b",TxPortTarget);
           // Increment counter if output packet expected 	
           for (int i = 0; i < NumTx; i++) begin
             if (TxPortTarget[i]) begin
@@ -159,8 +172,9 @@ module test ();
               //$display("port %0d ->> %0d", Rxiter,i);
             end
           end
+	  $display("Rx%0d Sending Packet VPI=%0d", RxIter, Pkt.uni.VPI);
           Rx[RxIter].Method.Send(Pkt, RxIter);
-          //$display("Port %d sent packet", RxIter);
+            $display("Port %d sent packet", RxIter);
           repeat ($random(seed) % 200) @(negedge clk);
         end
         RxGenInProgress[RxIter] = 0;
