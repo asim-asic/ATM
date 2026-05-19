@@ -1,21 +1,17 @@
-SV = iverilog
-FLAGS =-g2012
-SIM = atm_sim
-SRCS = definitions.sv utopia.sv methods.sv squat.sv utopial_atm_rx.sv utopial_atm_tx.sv test.sv
-all: $(SIM)
+SRCS = definitions.sv \
+       utopia.sv \
+       methods.sv \
+       utopial_atm_rx.sv \
+       utopial_atm_tx.sv \
+       squat.sv \
+       test.sv \
+       top.sv
 
-$(SIM): $(SRCS)
-	$(SV) $(FLAGS) -o $(SIM) $(SRCS)
+msim:
+	vlib work
+	vmap work work
+	vlog -sv $(SRCS)
+	vsim -c work.top -do "run -all; quit"
 
-run: $(SIM)
-	vvp $(SIM)
-
-sim: all run
-
-lint:
-	verilator --lint-only --sv $(SRCS)
-	
-clean: 
-	rm -f $(SIM) *.vcd *.log
-
-.PHONY: all run sim clean
+clean:
+	rm -rf work transcript vsim.wlf
