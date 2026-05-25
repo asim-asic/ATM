@@ -1,0 +1,28 @@
+# Current time # Current time Fri May 15 14:49:18 2026
+Fri May 15 14:49:18 2026
+# # ModelSimModelSim - Intel FPGA Edition - Intel FPGA Edition Stack Trace
+ Stack Trace
+# Program = # Program = vishvish
+
+# Id = "# Id = "2020.12020.1"
+"
+# Version = "# Version = "2020.022020.02"
+"
+# Date = "# Date = "Feb 28 2020Feb 28 2020"
+"
+# Platform = "# Platform = "linuxaloemlinuxaloem"
+"
+# 0    0xf7fc4569: '<unknown (@0xf7fc4569)>'
+# 1    0xf7fc458b: '<unknown (@0xf7fc458b)>'
+# End of Stack Trace
+
+# 0    0xf7fc4569: '<unknown (@0xf7fc4569)>'
+# 1    0xf7fc458b: '<unknown (@0xf7fc458b)>'
+# End of Stack Trace
+
+# transcript error: error writing "stdout": I/O error
+    while executing
+"puts -nonewline stdout $s"
+# transcript error: error writing "stdout": I/O error
+    while executing
+"puts -nonewline stdout $s"
