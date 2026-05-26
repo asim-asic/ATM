@@ -92,17 +92,20 @@ table to determine the outgoing port and new VPI/VCI values.
 ---
 
 ### ATM Protocol Layers
-ATM maps to the bottom three layers of the OSI model:
-┌──────────────────────────────┐
-│Higher Layer Services | Voice, Video, IP, Data
-├──────────────────────────────┤
-│AAL — ATM Adaptation Layer │ Segmentation & Reassembly
-├──────────────────────────────┤
-│ATM Layer │ Cell switching, VPI/VCI, multiplexing
-├──────────────────────────────┤
-│Physical Layer │ Bit transmission over SONET/SDH
-└──────────────────────────────┘
 
+ATM maps to the bottom three layers of the OSI model:
+
+```
++------------------------------+
+|     Higher Layer Services    |  Voice, Video, IP, Data
++------------------------------+
+|  AAL - ATM Adaptation Layer  |  Segmentation & Reassembly
++------------------------------+
+|         ATM Layer            |  Cell switching, VPI/VCI, multiplexing
++------------------------------+
+|       Physical Layer         |  Bit transmission over SONET/SDH
++------------------------------+
+```
 - **Physical Layer** — Converts cells into a bitstream and manages
   transmission over the physical medium.
 - **ATM Layer** — Handles cell switching, multiplexing, congestion control,
