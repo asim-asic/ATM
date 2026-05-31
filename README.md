@@ -58,3 +58,61 @@ In NNI format, the 4-bit GFC field is removed and its bits are given to
 the VPI field, extending it from 8 to 12 bits.
 
 ---
+
+### Header Fields
+
+- **GFC — Generic Flow Control** — Manages flow between user and network.
+  Only present in UNI. In practice always set to `0000`.
+- **VPI — Virtual Path Identifier** — Groups multiple channels into one
+  logical virtual path.
+- **VCI — Virtual Channel Identifier** — Identifies a specific channel
+  within a virtual path.
+- **PT — Payload Type** — Indicates whether the cell carries user data or
+  network management data. Also signals congestion.
+- **CLP — Cell Loss Priority** — If set to `1`, this cell is dropped first
+  when the network is congested.
+- **HEC — Header Error Control** — 8-bit CRC checksum over the header only.
+  Polynomial: X⁸ + X² + X + 1.
+
+---
+
+## Virtual Circuits
+
+ATM is connection-oriented. Before any data flows, a virtual circuit must
+be established between two endpoints.
+
+- **PVC — Permanent Virtual Circuit** — Pre-configured dedicated connection.
+- **SVC — Switched Virtual Circuit** — Created dynamically only for the
+  duration of a session.
+
+Switching in ATM works by **label swapping** — as a cell passes through
+each switch, the VPI/VCI values in the header are replaced with new values
+for the next hop. The switch simply looks up the incoming VPI/VCI in a
+table to determine the outgoing port and new VPI/VCI values.
+
+---
+
+### ATM Protocol Layers
+
+ATM maps to the bottom three layers of the OSI model:
+
+```
++------------------------------+
+|     Higher Layer Services    |  Voice, Video, IP, Data
++------------------------------+
+|  AAL - ATM Adaptation Layer  |  Segmentation & Reassembly
++------------------------------+
+|         ATM Layer            |  Cell switching, VPI/VCI, multiplexing
++------------------------------+
+|       Physical Layer         |  Bit transmission over SONET/SDH
++------------------------------+
+```
+- **Physical Layer** — Converts cells into a bitstream and manages
+  transmission over the physical medium.
+- **ATM Layer** — Handles cell switching, multiplexing, congestion control,
+  and cell header processing using VPI/VCI information.
+- **AAL — ATM Adaptation Layer** — Isolates higher-layer protocols from ATM
+  details. Segments large data units into 48-byte payloads and reassembles
+  them at the destination.
+
+---
