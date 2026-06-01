@@ -116,3 +116,26 @@ ATM maps to the bottom three layers of the OSI model:
   them at the destination.
 
 ---
+
+### AAL Types
+
+| AAL Type | Used For                              |
+|----------|---------------------------------------|
+| AAL1     | Constant Bit Rate (CBR) — voice, circuit emulation |
+| AAL2     | Variable Bit Rate (VBR) — compressed voice/video  |
+| AAL5     | Data — most widely used today         |
+
+## Design Architecture
+
+### Overview
+
+The design implements a quad ATM user-to-network interface and forwarding
+node. It is a configurable NxP port forwarding switch that receives ATM
+cells on N input ports, looks up the correct output port using a VPI/VCI
+lookup table, and forwards the cell to the correct P output port.
+
+By default the design is a **4x4 switch** — 4 input ports and 4 output
+ports. Using `+define` invocation options at compile time, it can be
+scaled to any NxP configuration.
+
+---
