@@ -159,3 +159,29 @@ runtime.
 | mif   | Input     | CPU management interface           |
 | rst   | Input     | Asynchronous reset                 |
 | clk   | Input     | Clock signal                       |
+
+#### `utopial_atm_rx` — ATM Receiver Module
+
+The ATM receiver module listens on a single Utopia Level 1 receive
+interface and collects incoming bytes one at a time. It uses a finite
+state machine (FSM) to assemble a complete 53-byte ATM cell from the
+incoming byte stream. Once a complete cell is assembled, it is copied
+to the cell buffer and marked as valid for the switch fabric to process.
+
+The FSM cycles through the following states:
+
+| State      | Description                              |
+|------------|------------------------------------------|
+| `reset`    | Initial state — waits for activity       |
+| `soc`      | Detects Start of Cell signal             |
+| `vpi_vci`  | Reads VPI and VCI header bytes           |
+| `vci`      | Continues reading VCI field              |
+| `vci_clp_pt` | Reads VCI, CLP and PT fields           |
+| `hec`      | Reads Header Error Control byte          |
+| `payload`  | Reads 48 payload bytes                   |
+| `ack`      | Acknowledges complete cell reception     |
+
+| Port | Direction | Description                    |
+|------|-----------|--------------------------------|
+| Rx   | Interface | Utopia CoreReceive interface   |
+
