@@ -139,3 +139,23 @@ ports. Using `+define` invocation options at compile time, it can be
 scaled to any NxP configuration.
 
 ---
+
+### Module Descriptions
+
+#### `squat` — Top Level Switch Module
+
+The top-level ATM switch module. It instantiates and connects all
+sub-modules together. It receives incoming ATM cells on NumRx input
+ports, uses an internal lookup table to determine the correct output
+port based on the VPI/VCI values in the cell header, and forwards the
+cell to the correct output port among NumTx transmit ports. It also
+exposes a CPU management interface for configuring the lookup table at
+runtime.
+
+| Port  | Direction | Description                        |
+|-------|-----------|------------------------------------|
+| Rx    | Input     | Array of NumRx Utopia receive interfaces  |
+| Tx    | Output    | Array of NumTx Utopia transmit interfaces |
+| mif   | Input     | CPU management interface           |
+| rst   | Input     | Asynchronous reset                 |
+| clk   | Input     | Clock signal                       |
