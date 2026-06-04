@@ -185,3 +185,29 @@ The FSM cycles through the following states:
 |------|-----------|--------------------------------|
 | Rx   | Interface | Utopia CoreReceive interface   |
 
+#### `utopial_atm_tx` — ATM Transmitter Module
+
+The ATM transmitter module takes a complete 53-byte ATM cell from the
+switch fabric and transmits it byte by byte over a single Utopia Level 1
+transmit interface. It uses a finite state machine (FSM) to control the
+transmission sequence, asserting the Start of Cell signal at the
+beginning and transmitting each byte in order — header first, then
+payload.
+
+The FSM cycles through the following states:
+
+| State        | Description                                  |
+|--------------|----------------------------------------------|
+| `reset`      | Initial state — waits for valid cell         |
+| `soc`        | Asserts Start of Cell signal                 |
+| `vpi_vci`    | Transmits VPI and VCI header bytes           |
+| `vci`        | Continues transmitting VCI field             |
+| `vci_clp_pt` | Transmits VCI, CLP and PT fields             |
+| `hec`        | Transmits Header Error Control byte          |
+| `payload`    | Transmits 48 payload bytes                   |
+| `ack`        | Acknowledges transmission                    |
+| `done`       | Cell transmission complete                   |
+
+| Port | Direction | Description                     |
+|------|-----------|----------------------------------|
+| Tx   | Interface | Utopia CoreTransmit interface    |
