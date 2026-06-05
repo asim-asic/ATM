@@ -211,3 +211,25 @@ The FSM cycles through the following states:
 | Port | Direction | Description                     |
 |------|-----------|----------------------------------|
 | Tx   | Interface | Utopia CoreTransmit interface    |
+
+## SystemVerilog Concepts Used
+
+This project demonstrates the following core SystemVerilog concepts:
+
+| Concept | Where Used |
+|---|---|
+| `typedef struct packed` | UNI, NNI, TST cell type definitions in `definitions.sv` |
+| `typedef union packed` | `ATMCellType` — single variable holds UNI or NNI cell |
+| `interface` | `Utopia`, `CPU`, `LookupTable`, `UtopiaMethod`, `CPUMethod` |
+| `modport` | Defines directional views of interfaces — `CoreReceive`, `CoreTransmit`, `TopReceive`, `TopTransmit` |
+| `parameter` | Configurable `NumRx` and `NumTx` port counts in `squat` |
+| `enum` | FSM state encoding in `utopial_atm_rx` and `utopial_atm_tx` |
+| `always_ff` | Clocked FSM logic in receiver and transmitter |
+| `always_comb` | Combinational logic in switch fabric |
+| `package` | Compilation unit packages for type sharing across files |
+| `task` | `HostWrite`, `HostRead`, `Send`, `Receive` in method interfaces |
+| `function` | `hec()` — computes Header Error Control checksum |
+| `\`define` | `RxPorts` and `TxPorts` — configurable port counts |
+| `\`ifndef SYNTHESIS` | Excludes simulation-only code from synthesis |
+| `unique case` | FSM state decoding — ensures no overlapping cases |
+| Arrays of interfaces | `Utopia Rx[0:NumRx-1]` — array of receive interfaces |
