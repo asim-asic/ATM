@@ -233,3 +233,20 @@ This project demonstrates the following core SystemVerilog concepts:
 | `\`ifndef SYNTHESIS` | Excludes simulation-only code from synthesis |
 | `unique case` | FSM state decoding — ensures no overlapping cases |
 | Arrays of interfaces | `Utopia Rx[0:NumRx-1]` — array of receive interfaces |
+
+## Project Directory Structure
+
+```
+atm/
+├── definitions.sv        # Type definitions — UNI, NNI, TST, ATMCellType,
+│                         # CellCfgType, CPU interface, LookupTable interface
+├── utopia.sv             # Utopia Level 1 interface definition with modports
+├── methods.sv            # UtopiaMethod and CPUMethod testbench interfaces
+├── squat.sv              # Top-level ATM switch module
+├── utopial_atm_rx.sv     # Utopia ATM receiver module
+├── utopial_atm_tx.sv     # Utopia ATM transmitter module
+├── top.sv                # Top-level include file for ModelSim compilation
+├── test.sv               # Testbench — generates and verifies ATM cells
+├── Makefile              # Build automation — compile, simulate, lint
+└── README.md             # Project documentation
+```
